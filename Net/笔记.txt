@@ -1,0 +1,40 @@
+
+查看是否安装：rpm -qa | grep xinetd
+启动:service xinetd start
+
+守护进程：xinetd
+	daemon.系统中的一个后台进程。周期性的执行某些任务或者等待某个事件的发生。不会随用户的注销而退出。
+	创建守护进程，不能是主进程----fork子进程，父进程结束。子进程setsid()创建新会话，脱离控制终端。修改权限，
+文件描述符，重定向dup2。
+	如：
+	xinetd 接收到客户端请求后，启动zhangshan的可执行文件。 ./zhangshan
+	1.在/etc/xinetd.d创建一个为zhangshan的文件(它实质是一个配置文件)
+	2.写入配置内容，名头：service zhangshan{....}
+	3.server = /home/itcast/zhangshan (zhangshan可执行文件，应在home/itcast/目录。)
+	
+
+分析xhttpd服务器实现功能：
+	xinetd在启动 xttpd可执行文件时，会给它的argv[1]传参--->配置文件server_args的值
+	相当于：./xhttpd /home/itcast/dir/lf.jgp
+	
+	/home/itcast/
+	chdir():改变工作目录。--->拼接 访问文件的绝对路径来进行访问
+	
+	读http协议头，获取客户端请求的文件名；
+	标准输入中读取:fgets 函数
+	解析http协议头-->>得到请求的文件名
+
+	判断文件是否存在：
+		存在：
+			判断待请求文件是什么类型：
+				目录：
+					返回目录列表。----递归遍历获取目录，获取文件数量。---->获取文件名。
+				文件：
+					回写http协议头
+					回写文件内容
+		不存在：
+			回写http协议头
+			回写类型
+			回写错误页面404<html>页面
+			
+			
